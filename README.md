@@ -48,10 +48,10 @@ Open a terminal or command prompt in the folder containing the Python script and
 ### Step 3: Use the Base64 String in Lua
 1. Open the `embedded_image.txt` file.
 2. Use `Ctrl + A` to select the entire content and `Ctrl + C` to copy it.
-3. Paste the copied string into the Lua script inside the `base64_image` variable:
+3. Paste the copied string into the Lua script inside the `base64_image` variable between square brackets :
    ```lua
    local base64_image = [[
-   -- Paste the Base64 string here
+   --your string goes here between square brackets
    ]]
    ```
 

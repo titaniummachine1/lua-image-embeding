@@ -24,7 +24,7 @@ def optimize_image_to_smaller_power_of_2(image_path):
         new_width = nearest_power_of_2_smaller(original_width)
         new_height = nearest_power_of_2_smaller(original_height)
         img = img.resize((new_width, new_height), Image.Resampling.BOX)
-        return img, new_width, new_height
+        return img
 
 def convert_image_to_rgba_base64(img):
     """Convert the image to RGBA raw bytes and encode in Base64."""
@@ -32,10 +32,9 @@ def convert_image_to_rgba_base64(img):
     encoded_string = base64.b64encode(raw_data).decode('utf-8')
     return encoded_string
 
-def save_base64_to_txt(base64_string, width, height, output_filename="embedded_image.txt"):
-    """Overwrite the file with dimensions and Base64 string."""
+def save_base64_to_txt(base64_string, output_filename="embedded_image.txt"):
+    """Overwrite the file with only the Base64 string."""
     with open(output_filename, 'w') as txt_file:
-        txt_file.write(f"-- Width: {width}, Height: {height}\n")
         txt_file.write(base64_string)
 
 def main():
@@ -55,14 +54,14 @@ def main():
     image_path = os.path.join(folder_path, image_filename)
 
     # Optimize the image
-    optimized_img, width, height = optimize_image_to_smaller_power_of_2(image_path)
+    optimized_img = optimize_image_to_smaller_power_of_2(image_path)
 
     # Convert the optimized image to Base64
     base64_string = convert_image_to_rgba_base64(optimized_img)
 
     # Save the Base64 string to a text file
-    save_base64_to_txt(base64_string, width, height, output_file)
-    print(f"Base64 string saved to '{output_file}' with dimensions {width}x{height}.")
+    save_base64_to_txt(base64_string, output_file)
+    print(f"Base64 string saved to '{output_file}'.")
 
 if __name__ == "__main__":
     main()

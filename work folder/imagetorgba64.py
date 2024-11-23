@@ -24,13 +24,14 @@ def optimize_image_to_smaller_power_of_2(image_path):
         new_width = nearest_power_of_2_smaller(original_width)
         new_height = nearest_power_of_2_smaller(original_height)
         img = img.resize((new_width, new_height), Image.Resampling.BOX)
-        return img
+        return img, new_width, new_height
 
-def convert_image_to_rgba_base64(img):
-    """Convert the image to RGBA raw bytes and encode in Base64."""
-    raw_data = img.tobytes()
-    encoded_string = base64.b64encode(raw_data).decode('utf-8')
-    return encoded_string
+def prepend_dimensions_to_base64(base64_string, width, height):
+    """Prepend image dimensions to the Base64 string in a decodable format."""
+    dimensions = f"{width:04}{height:04}"  # 4 digits each for width and height
+    dimensions_bytes = dimensions.encode("utf-8")
+    dimensions_encoded = base64.b64encode(dimensions_bytes).decode("utf-8")
+    return f"{dimensions_encoded}{base64_string}"
 
 def save_base64_to_txt(base64_string, output_filename="embedded_image.txt"):
     """Overwrite the file with only the Base64 string."""
@@ -54,14 +55,17 @@ def main():
     image_path = os.path.join(folder_path, image_filename)
 
     # Optimize the image
-    optimized_img = optimize_image_to_smaller_power_of_2(image_path)
+    optimized_img, width, height = optimize_image_to_smaller_power_of_2(image_path)
 
     # Convert the optimized image to Base64
-    base64_string = convert_image_to_rgba_base64(optimized_img)
+    base64_string = base64.b64encode(optimized_img.tobytes()).decode('utf-8')
+
+    # Prepend the dimensions to the Base64 string
+    full_base64_string = prepend_dimensions_to_base64(base64_string, width, height)
 
     # Save the Base64 string to a text file
-    save_base64_to_txt(base64_string, output_file)
-    print(f"Base64 string saved to '{output_file}'.")
+    save_base64_to_txt(full_base64_string, output_file)
+    print(f"Base64 string saved to '{output_file}' with dimensions {width}x{height}.")
 
 if __name__ == "__main__":
     main()

@@ -66,7 +66,7 @@ Use the following Lua script to render the embedded image dynamically:
 ```lua
 -- Base64-encoded RGBA image data
 local base64_image = [[
---your script goes here between square brackets
+--your string goes here between square brackets
 ]]
 
 -- Base64 decoding function

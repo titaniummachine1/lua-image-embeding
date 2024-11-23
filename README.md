@@ -29,7 +29,7 @@ This repository provides a simple and effective way to embed any image into your
 ---
 
 ### Step 2: Run the Python Script
-1. Open a terminal or command prompt in the folder containing the Python script and your image.
+1. double click on python script to run it or Open a terminal or command prompt in the folder containing the Python script and your image.
 2. Run the following command:
    ```bash
    python image_to_rgba.py

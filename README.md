@@ -17,22 +17,6 @@ This repository provides a simple and effective way to embed any image into your
 
 ### Python Requirements
 1. Install **Python 3.x** if not already installed.
-2. Required Python libraries:
-   - `pillow`
-   - `clipboard`
-
-To install the necessary dependencies, run:
-```bash
-pip install pillow clipboard
-```
-
-### Lua Requirements
-1. Ensure your Lua environment supports:
-   - `draw.CreateTextureRGBA`
-   - `draw.GetTextureSize`
-   - `draw.TexturedRect`
-
----
 
 ## Workflow
 

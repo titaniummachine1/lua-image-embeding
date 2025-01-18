@@ -1,72 +1,69 @@
-# Image to RGBA Base64 Encoder and Lua Renderer
+# **📌 Image to Lua Encoder (Binary & Base64)**
+This repository provides **two powerful methods** to embed images directly into Lua scripts:  
+1️⃣ **Base64-Encoded RGBA**  
+2️⃣ **Binary `\xXX` Notation**  
 
-This repository provides a simple and effective way to embed any image into your Lua scripts using Base64-encoded RGBA textures. The workflow ensures compatibility with your Lua environment, dynamically retrieves texture dimensions, and renders the image seamlessly.
-
----
-
-## Features
-
-- Automatically resizes images to the **nearest smaller power-of-2 dimensions**.
-- Converts images into **Base64-encoded RGBA** strings for direct use in Lua scripts.
-- Dynamically calculates texture dimensions in Lua—no need to manually specify image sizes.
-- Easy-to-use scripts for Python (encoding) and Lua (rendering).
+These allow **seamless image rendering in Lua without requiring external files**.
 
 ---
 
-## Prerequisites
-
-### Python Requirements
-1. Install **Python 3.x** if not already installed.
-
-## Workflow
-
-### Step 1: Prepare the Image
-1. **Place your image** in the same folder as the Python script.
-2. Supported formats include: `.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`.
-
-> Ensure the folder contains only the image you want to process for simplicity.
+## **✨ Features**
+✅ **Clipboard-Based Encoding** – Copy an image, run the script, and paste the output into Lua!  
+✅ **Supports Two Encoding Methods** – Choose between **Base64** (readable) or **Binary** (efficient).  
+✅ **Automatic Power-of-2 Resizing** – Ensures maximum compatibility with rendering engines.  
+✅ **No External Image Files Required** – The Lua script decodes & renders images dynamically.  
+✅ **Easy Integration** – Just **copy & paste** the generated Lua-compatible image string.
 
 ---
 
-### Step 2: Run the Python Script
-#1. double click on python script to run it
-
-or
-
-Open a terminal or command prompt in the folder containing the Python script and your image.
-2. Run the following command:
+## **📌 Prerequisites**
+### **Python Requirements**
+1. Install **Python 3.x** (Download from [python.org](https://www.python.org/)).
+2. Install required dependencies:
    ```bash
-   python image_to_rgba.py
+   pip install pillow pyperclip
    ```
-3. The script will:
-   - Resize the image to the nearest **power-of-2 dimensions**.
-   - Convert the image to a Base64-encoded RGBA string.
-   - Save the encoded string in a file named `embedded_image.txt`.
+
+### **Lua Requirements**
+- Your Lua environment must support **texture rendering** (`draw.CreateTextureRGBA`, `draw.TexturedRect`).
 
 ---
 
-### Step 3: Use the Base64 String in Lua
-1. Open the `embedded_image.txt` file.
-2. Use `Ctrl + A` to select the entire content and `Ctrl + C` to copy it.
-3. Paste the copied string into the Lua script inside the `base64_image` variable between square brackets :
-   ```lua
-   local base64_image = [[
-   --your string goes here between square brackets
-   ]]
-   ```
+## **🚀 Quick Start Guide**
+### **Step 1: Copy an Image**
+- Right-click an image and select **"Copy"**, or press **Ctrl+C**.
 
-4. The Lua script will handle decoding, texture creation, and rendering dynamically. No need to specify image dimensions manually.
+### **Step 2: Run the Python Script**
+- **Option 1: Double-click the script** (`clipboard_to_lua.py`).  
+- **Option 2: Run from the terminal**:
+  ```bash
+  python clipboard_to_lua.py
+  ```
+- The script will:
+  ✅ Grab the image from the clipboard.  
+  ✅ Resize it to **nearest power-of-2 dimensions**.  
+  ✅ Convert it into a **Lua-compatible Base64 or Binary string**.  
+  ✅ **Automatically copy** the result to the clipboard.  
+
+### **Step 3: Paste into Your Lua Script**
+- Open your Lua script (`example.lua`).
+- Choose **Base64** or **Binary** storage method:
+  - **For Base64:** Paste into `local base64_image = [[ ]]`
+  - **For Binary:** Paste into `local binary_image = [[ ]]`
+- **Press `Ctrl+V`** to paste the copied string.
+
+### **Step 4: Run Your Lua Script**
+- Your Lua script will **decode and render the image dynamically**.
 
 ---
 
-### Lua Rendering Script
-
-Use the following Lua script to render the embedded image dynamically:
+## **🟢 Option 1: Base64 Lua Rendering Script**
+Use the following Lua script to decode & render a **Base64-encoded image**:
 
 ```lua
 -- Base64-encoded RGBA image data
 local base64_image = [[
---your string goes here between square brackets
+-- Paste the Base64 string here
 ]]
 
 -- Base64 decoding function
@@ -101,69 +98,120 @@ local function base64_decode(data)
     return table.concat(decoded)
 end
 
--- Decode dimensions from the first 12 characters of the Base64 string
+-- Decode dimensions from Base64
 local dimension_encoded = string.sub(base64_image, 1, 12)
 local dimension_decoded = base64_decode(dimension_encoded)
-local width = tonumber(string.sub(dimension_decoded, 1, 4)) -- First 4 digits: width
-local height = tonumber(string.sub(dimension_decoded, 5, 8)) -- Next 4 digits: height
+local width = tonumber(string.sub(dimension_decoded, 1, 4))
+local height = tonumber(string.sub(dimension_decoded, 5, 8))
 
--- Decode the Base64 data (excluding the first 12 characters for dimensions)
+-- Decode RGBA data
 local image_data = string.sub(base64_image, 13)
 local decoded_data = base64_decode(image_data)
 
--- Validate data length
+-- Validate & render image
 local expected_length = width * height * 4
 if #decoded_data ~= expected_length then
-    print("Invalid data length. Expected " .. expected_length .. " bytes, got " .. #decoded_data .. " bytes.")
+    print("Invalid data length.")
     return
 end
 
--- Create texture once
 local texture = draw.CreateTextureRGBA(decoded_data, width, height)
+if not texture then print("Failed to create texture.") return end
 
--- Validate texture creation
-if not texture then
-    print("Failed to create texture.")
-    return
-end
-
--- Named draw function
+-- Draw function
 local function draw_texture()
-    local x, y = 100, 100 -- Position to draw the texture
-    draw.Color(255, 255, 255, 255) -- Set color to white (opaque)
+    local x, y = 100, 100
+    draw.Color(255, 255, 255, 255)
     draw.TexturedRect(texture, x, y, x + width, y + height)
 end
 
--- Register the draw function to be called every frame
 callbacks.Register("Draw", "RenderTexture", draw_texture)
-
 ```
 
 ---
 
-## Troubleshooting
+## **🔵 Option 2: Binary Lua Rendering Script**
+Use this Lua script for **Binary-encoded image** rendering:
 
-### Python Script Issues
-- **No image found**: Ensure there’s only one image in the folder, and it is in a supported format.
-- **Missing dependencies**: Install required libraries:
-  ```bash
-  pip install pillow clipboard
-  ```
+```lua
+-- Binary-encoded RGBA image data
+local binary_image = [[
+-- Paste the binary string here
+]]
 
-### Lua Script Issues
-- **Failed to create texture**: Ensure the Base64 string is correctly copied and pasted.
-- **Image not rendering**: Verify that your Lua environment supports the required `draw` library functions (`CreateTextureRGBA`, `GetTextureSize`, etc.).
+-- Convert \xXX format to raw byte data
+local function to_raw_bytes(data)
+    local raw = {}
+    for byte in data:gmatch("\\x(%x%x)") do
+        table.insert(raw, string.char(tonumber(byte, 16)))
+    end
+    return table.concat(raw)
+end
+
+-- Extract dimensions from binary data
+local function extract_dimensions(data)
+    local width = (data:byte(1) * 16777216) + (data:byte(2) * 65536) +
+                  (data:byte(3) * 256) + data:byte(4)
+    local height = (data:byte(5) * 16777216) + (data:byte(6) * 65536) +
+                   (data:byte(7) * 256) + data:byte(8)
+    return width, height
+end
+
+-- Convert binary data to texture
+local function create_texture(binary_data)
+    local raw_binary = to_raw_bytes(binary_data)
+    local width, height = extract_dimensions(raw_binary)
+    local rgba_data = raw_binary:sub(9)
+
+    local texture = draw.CreateTextureRGBA(rgba_data, width, height)
+    if not texture then error("Failed to create texture.") end
+    return texture, width, height
+end
+
+-- Draw function
+local texture, width, height = create_texture(binary_image)
+local function draw_texture()
+    local x, y = 100, 100
+    draw.Color(255, 255, 255, 255)
+    draw.TexturedRect(texture, x, y, x + width, y + height)
+end
+
+callbacks.Register("Draw", "RenderBinaryTexture", draw_texture)
+```
 
 ---
 
-## FAQ
-
-### Why use Base64-encoded RGBA images?
-Base64 encoding allows embedding raw image data directly into Lua scripts, avoiding dependency on external files or paths.
-
-### What are "power-of-2 dimensions"?
-Textures work best when their width and height are powers of 2 (e.g., 32, 64, 128, 256). This ensures compatibility and avoids rendering issues in some environments.
+## **📊 Base64 vs Binary Comparison**
+| Feature | **Base64** | **Binary (`\xXX`)** |
+|---------|----------------|----------------|
+| **Size Efficiency** | ❌ Larger (Base64 increases size by ~33%) | ✅ Smaller (Direct binary) |
+| **Decoding Speed** | ❌ Slower (Base64 decoding step) | ✅ Faster (No decoding needed) |
+| **Readability** | ✅ More readable (text-based) | ❌ Harder to read manually |
+| **Compatibility** | ✅ Works well in APIs & networking | ✅ Works well in compact scripts |
 
 ---
 
-Let me know if you have further questions or need additional explanations!
+## **🛠 Troubleshooting**
+❌ **"Clipboard does not contain an image."**  
+👉 Make sure you copied an **actual image**, not just a file path.
+
+❌ **"Python script doesn’t run."**  
+👉 Install dependencies:
+   ```bash
+   pip install pillow pyperclip
+   ```
+
+❌ **"Failed to create texture in Lua."**  
+👉 Ensure the Base64 or Binary string is **correctly copied and pasted**.
+
+---
+
+## **📜 License**
+This project is **open-source** and free to use. Attribution is appreciated but not required.
+
+---
+
+## **📬 Contact & Support**
+For questions, suggestions, or bug reports, feel free to contact the script author.  
+
+Happy coding! 🚀

@@ -1,80 +1,102 @@
-# **README: Binary Image Embedding for Lua Scripts**
+# **README: Binary Image Embedding for Lua Scripts (Clipboard Version)**
 
 ### **Overview**
-This setup allows you to embed images directly into a Lua script as a binary string. It’s perfect for creating a lightweight, standalone Lua script that displays images without requiring users to install additional files or dependencies.
+This setup allows you to **convert an image directly from your clipboard** into a Lua-compatible binary string. It’s perfect for embedding images inside a Lua script without requiring users to install additional files or dependencies.
 
 ---
 
 ### **How It Works**
-1. **Convert Your Image to Binary:**  
-   A Python script processes your image and generates a binary string representation, complete with dimensions, ready for use in Lua.
+1. **Copy an Image to Your Clipboard:**  
+   Instead of manually selecting a file, simply copy an image (`Ctrl+C` on an image).
+   
+2. **Run the Python Script:**  
+   The script **grabs the image from the clipboard**, processes it, and converts it into a Lua-friendly binary string.
 
-2. **Embed the Binary String:**  
-   Copy the generated string and paste it into the specified section of the Lua script.
+3. **Paste the Binary String into Your Lua Script:**  
+   The script **automatically copies the result back to the clipboard**, so you can **paste it (`Ctrl+V`) directly into your Lua script**.
 
-3. **Enjoy Seamless Integration:**  
-   When the Lua script is run, it displays the image without requiring the user to download or install anything extra.
+4. **Run the Lua Script:**  
+   The embedded binary string allows the Lua script to render the image seamlessly.
 
 ---
 
 ### **Step-by-Step Instructions**
 
 #### **1. Prepare Your Environment**
-- Ensure you have **Python installed** on your system. You can download it from [python.org](https://www.python.org/) if needed.
-- Place your **image file** (e.g., `.png`, `.jpg`) into this folder alongside the provided Python script.
-
----
-
-#### **2. Run the Python Script**
-- Double-click the Python script (`generate_binary.py`) or run it manually via the command line:
+- Ensure you have **Python installed** on your system.  
+  You can download it from [python.org](https://www.python.org/) if needed.
+- Install **required dependencies** (only needed once):
   ```bash
-  python generate_binary.py
+  pip install pillow pyperclip
   ```
-- The script will process your image and create an `output.txt` file in the same folder.
 
 ---
 
-#### **3. Copy the Binary String**
-- Open `output.txt` and press **Ctrl+A** to select all the text.
-- Copy it with **Ctrl+C**.
+#### **2. Copy an Image**
+- Find an image you want to embed.
+- **Right-click → Copy**, or use **Ctrl+C** to copy the image to your clipboard.
 
 ---
 
-#### **4. Edit Your Lua Script**
-- Open the Lua script (`example.lua`) in this folder.
-- Locate the placeholder for the binary string, which looks like this:
+#### **3. Run the Python Script**
+- **Double-click the script (`clipboard_to_lua.py`)** or run it manually via the command line:
+  ```bash
+  python clipboard_to_lua.py
+  ```
+- The script will:
+  ✅ Grab the image from the clipboard.  
+  ✅ Resize it to **the nearest power-of-2 dimensions** for compatibility.  
+  ✅ Convert it into **a Lua-compatible binary string**.  
+  ✅ **Automatically copy** the result back to your clipboard.
+
+---
+
+#### **4. Paste into Your Lua Script**
+- Open your Lua script (`example.lua`).
+- Find the placeholder for the binary string:
   ```lua
   local binary_image = [[ -- paste your binary string here ]]
   ```
-- Paste the copied binary string between the `[[ ]]` brackets.
+- **Press `Ctrl+V`** to paste the copied binary string.
 
 ---
 
 #### **5. Save and Run**
 - Save the Lua script.
-- Load it into your game or application as per your standard process. The image will be displayed directly, no external files required!
+- Load it into your game or application as per your standard process.  
+  The image will be displayed directly—no external files required!
 
 ---
 
 ### **Key Features**
-- **Standalone:** Users don’t need to download or install extra dependencies. Everything is embedded in the Lua script.
-- **Automatic Resizing:** The Python script ensures the image dimensions are optimized (powers of 2) for compatibility.
-- **Customizable:** Use the Lua script as a template to easily swap out images.
+✅ **Clipboard-Based** – No need to manually select files. Just copy an image and run the script!  
+✅ **Standalone** – Users don’t need to install extra dependencies in Lua. The image is embedded inside the script.  
+✅ **Automatic Resizing** – The script ensures the image dimensions are optimized (powers of 2).  
+✅ **Quick & Easy** – The binary string is copied directly to your clipboard for instant pasting.  
+✅ **Lua-Compatible Formatting** – The output works with Lua’s `\x` byte notation for easy embedding.  
 
 ---
 
 ### **Troubleshooting**
-- If the script doesn’t run, ensure you have Python 3.x installed and added to your system PATH.
-- If your image doesn’t display, check that the binary string is correctly pasted and the Lua script is saved properly.
+❌ **"Clipboard does not contain an image."**  
+👉 Make sure you copied an image, not a file path or text.
+
+❌ **"Image looks too small."**  
+👉 The script automatically resizes the image to the nearest **power of 2**, which can slightly shrink it.
+
+❌ **"Python script doesn’t run."**  
+👉 Ensure you have **Python 3.x** installed and `pillow` + `pyperclip` installed:
+   ```bash
+   pip install pillow pyperclip
+   ```
 
 ---
 
 ### **Example Workflow**
-1. Place `my_image.png` in the folder.
-2. Run the Python script to generate `output.txt`.
-3. Copy the contents of `output.txt`.
-4. Paste it into the `example.lua` script.
-5. Load `example.lua` into your game—your image appears like magic!
+1. **Copy an image to your clipboard** (`Ctrl+C` on an image).  
+2. **Run the Python script (`clipboard_to_lua.py`)**.  
+3. **Paste the binary string into your Lua script (`Ctrl+V`)**.  
+4. **Run your Lua script—your image appears like magic!** 🎩✨  
 
 ---
 
@@ -84,4 +106,16 @@ This setup is free to use and modify. Attribution is appreciated but not require
 ---
 
 ### **Contact**
-For questions, suggestions, or issues, feel free to contact the script author. Have fun embedding your images!
+For questions, suggestions, or issues, feel free to contact the script author. Happy coding! 🚀
+
+---
+
+### **Example Output in Lua**
+```lua
+local binary_image = [[
+\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52
+-- (Generated binary data)
+]]
+```
+
+This binary string can be loaded and displayed in Lua without requiring external files! 🎉

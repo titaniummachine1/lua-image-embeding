@@ -69,10 +69,10 @@ def main():
 
         # Copy the Lua-compatible binary string to clipboard
         pyperclip.copy(lua_compatible_string)
-        print(f"✅ Image successfully converted and copied to clipboard! Dimensions: {width}x{height}")
+        print(f" Image successfully converted and copied to clipboard! Dimensions: {width}x{height}")
 
     except Exception as e:
-        print(f"❌ Error: {e}. Make sure an image is copied to the clipboard.")
+        print(f" Error: {e}. Make sure an image is copied to the clipboard.")
 
 if __name__ == "__main__":
     main()

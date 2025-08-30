@@ -3,8 +3,8 @@ local base91_image = [=[
 -- Paste the Base91 string here
 ]=]
 
--- Base91 character set
-local BASE91_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~"'
+-- Lua-safe Base91 character set (excludes ] and =)
+local BASE91_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<>?@\\^_`{|}~"-'
 
 -- Create lookup table for Base91 decoding
 local base91_lookup = {}

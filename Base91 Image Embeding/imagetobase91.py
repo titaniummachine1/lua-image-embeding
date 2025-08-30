@@ -4,8 +4,8 @@ import pyperclip
 from PIL import Image, ImageGrab
 import struct
 
-# Base91 character set (91 printable ASCII characters)
-BASE91_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~"'
+# Lua-safe Base91 character set (91 printable ASCII characters, excludes ] and =)
+BASE91_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<>?@\\^_`{|}~"-'
 
 def base91_encode(data):
     """Encode binary data to Base91 string."""

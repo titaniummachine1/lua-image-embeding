@@ -1,22 +1,22 @@
-# **README: Base64 Image Embedding for Lua Scripts (Clipboard Version)**
+# **Binary RGBA Image Embedding**
 
 ### **Overview**
-This setup allows you to **convert an image directly from your clipboard** into a **Base64-encoded Lua string**. This is useful for embedding images inside a Lua script **without requiring users to install additional files or dependencies**.
+This method converts images to binary hex-escaped RGBA data for embedding in Lua scripts. It produces larger files than Base64 but offers faster decoding performance.
 
 ---
 
 ### **How It Works**
-1. **Copy an Image to Your Clipboard:**  
-   Instead of manually selecting a file, simply copy an image (`Ctrl+C` on an image).
-   
-2. **Run the Python Script:**  
-   The script **grabs the image from the clipboard**, processes it, and converts it into a **Base64-encoded Lua-compatible string**.
+1. **Image Processing**: Takes image from clipboard or first image file in directory (alphabetically sorted)
+2. **Power-of-2 Resizing**: Automatically resizes to nearest smaller power-of-2 dimensions for GPU compatibility
+3. **RGBA Conversion**: Converts to raw RGBA pixel data (4 bytes per pixel)
+4. **Header Encoding**: Prepends 8-byte binary header with width/height as big-endian uint32s
+5. **Hex Escape Encoding**: Converts binary data to `\xXX` hex escape format for Lua strings
+6. **Clipboard Output**: Copies the hex string to clipboard for pasting into Lua
 
-3. **Paste the Base64 String into Your Lua Script:**  
-   The script **automatically copies the result back to the clipboard**, so you can **paste it (`Ctrl+V`) directly into your Lua script**.
+## Files
 
-4. **Run the Lua Script:**  
-   The embedded Base64 string is **decoded back into an image at runtime** and rendered without needing external files.
+- **`imagetobinary.py`** - Python script that converts images to binary hex strings
+- **`binarytoimage.lua`** - Lua decoder with direct hex parsing and texture rendering
 
 ---
 
@@ -39,53 +39,59 @@ This setup allows you to **convert an image directly from your clipboard** into 
 ---
 
 #### **3. Run the Python Script**
-- **Double-click the script (`clipboard_to_lua.py`)** or run it manually via the command line:
+- Run the script:
   ```bash
-  python clipboard_to_lua.py
+  python imagetobinary.py
   ```
 - The script will:
-  ✅ Grab the image from the clipboard.  
+  ✅ Grab the image from clipboard or directory.  
   ✅ Resize it to **the nearest power-of-2 dimensions** for compatibility.  
-  ✅ Convert it into **a Lua-compatible Base64 string**.  
+  ✅ Convert it into **a Lua-compatible binary hex string**.  
   ✅ **Automatically copy** the result back to your clipboard.
 
 ---
 
 #### **4. Paste into Your Lua Script**
-- Open your Lua script (`example.lua`).
-- Find the placeholder for the Base64 string:
+- Open your Lua script.
+- Find the placeholder for the binary string:
   ```lua
-  local base64_image = [[ -- paste your Base64 string here ]]
+  local binary_image = [[ -- paste your binary string here ]]
   ```
-- **Press `Ctrl+V`** to paste the copied Base64 string.
+- **Press `Ctrl+V`** to paste the copied binary string.
 
 ---
 
 #### **5. Save and Run**
 - Save the Lua script.
 - Load it into your game or application as per your standard process.  
-  The image will be **decoded from Base64 and displayed dynamically**.
+  The image will be **decoded from binary hex and displayed dynamically**.
 
 ---
 
-### **🔄 Changes from the Previous Binary Method**
-| Feature | **Old Binary Method** | **New Base64 Method** |
-|---------|------------------|------------------|
-| **Encoding Format** | `\xXX` notation (raw binary) | Base64 string (`A-Za-z0-9+/=`) |
-| **Size Efficiency** | Smaller (direct byte representation) | ~33% larger due to Base64 encoding |
-| **Decoding Process** | Directly extracts bytes from `\xXX` format | Requires Base64 decoding in Lua |
-| **Performance** | Faster (no decoding needed) | Slightly slower due to Base64 decoding step |
-| **Readability** | Harder to edit manually | Easier to read, copy, and edit |
-| **Integration** | More efficient for embedded scripts | Better for external transmission and API compatibility |
+## Advantages
+
+- **Faster decoding** - Direct hex parsing without Base64 decoding step
+- **Simple format** - Uses standard `\xXX` hex escape sequences
+- **No lookup tables** - Straightforward byte extraction
+
+## Disadvantages
+
+- **Larger file size** (~2MB for typical images vs ~686KB for Base64)
+- **Lower encoding efficiency** - 25% efficiency (4 chars = 1 byte)
+- **Less readable** - Harder to manually inspect or edit
 
 ---
 
-### **Key Features**
-✅ **Clipboard-Based** – No need to manually select files. Just copy an image and run the script!  
-✅ **Standalone** – Users don’t need to install extra dependencies in Lua. The image is embedded inside the script.  
-✅ **Automatic Resizing** – The script ensures the image dimensions are optimized (powers of 2).  
-✅ **Quick & Easy** – The Base64 string is copied directly to your clipboard for instant pasting.  
-✅ **More Compatible** – Base64 works well for networking, APIs, and data transmission.  
+## Supported Image Formats
+
+PNG, JPG, JPEG, BMP, GIF, TIFF, WEBP (case-insensitive)
+
+## Technical Details
+
+- Uses direct hex parsing for optimal decoding speed
+- Binary dimension headers avoid UTF-8 parsing overhead
+- Bitwise operations for fast dimension extraction
+- Single texture creation at load time  
 
 ---
 
@@ -105,10 +111,10 @@ This setup allows you to **convert an image directly from your clipboard** into 
 ---
 
 ### **Example Workflow**
-1. **Copy an image to your clipboard** (`Ctrl+C` on an image).  
-2. **Run the Python script (`clipboard_to_lua.py`)**.  
-3. **Paste the Base64 string into your Lua script (`Ctrl+V`)**.  
-4. **Run your Lua script—your image is decoded and displayed!** 🎩✨  
+1. **Copy an image to your clipboard** (`Ctrl+C` on an image) or place image file in directory.  
+2. **Run the Python script (`imagetobinary.py`)**.  
+3. **Paste the binary string into your Lua script (`Ctrl+V`)**.  
+4. **Run your Lua script—your image is decoded and displayed!**  
 
 ---
 
@@ -124,10 +130,10 @@ For questions, suggestions, or issues, feel free to contact the script author. H
 
 ### **Example Output in Lua**
 ```lua
-local base64_image = [[
-iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAA...
--- (Generated Base64 data)
+local binary_image = [[
+\x00\x00\x02\x00\x00\x00\x02\x00\xff\x00\x00\xff...
+-- (Generated binary hex data)
 ]]
 ```
 
-This Base64 string **can be decoded and displayed in Lua dynamically** without requiring external files! 🎉
+This binary string **can be decoded and displayed in Lua dynamically** without requiring external files!

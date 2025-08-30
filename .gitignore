@@ -1,0 +1,22 @@
+# Temporary files created by code runners/IDEs
+tempCodeRunnerFile.py
+tempCodeRunnerFile.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE temp files
+.vscode/settings.json
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

@@ -1,13 +1,15 @@
 # **📌 Lua Image Embedding Solutions**
 
-This repository provides two optimized methods for embedding images with transparency into Lua source files, designed for game engines or applications where file size is critical.
+This repository provides two methods for embedding images with transparency into Lua source files, designed for game engines or applications where file size is critical.
 
 Both solutions use PNG compression to dramatically reduce file size compared to raw RGBA data.
 
-✅ **Supports Two Encoding Methods** – Choose between **Base64** (readable) or **Binary** (efficient).  
+✅ **Supports Two Encoding Methods** – Choose between **Base64** (smaller files) or **Binary** (faster decoding).  
 ✅ **Automatic Power-of-2 Resizing** – Ensures maximum compatibility with rendering engines.  
 ✅ **No External Image Files Required** – The Lua script decodes & renders images dynamically.  
 ✅ **Easy Integration** – Just **copy & paste** the generated Lua-compatible image string.
+
+**⚠️ File Size Reality Check**: Base64 encoding produces **significantly smaller** embedded files (~686KB) compared to binary hex escapes (~2MB for the same image) due to Lua string literal limitations.
 
 ---
 

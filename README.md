@@ -1,14 +1,9 @@
-# **📌 Image to Lua Encoder (Binary & Base64)**
-This repository provides **two powerful methods** to embed images directly into Lua scripts:  
-1️⃣ **Base64-Encoded RGBA**  
-2️⃣ **Binary `\xXX` Notation**  
+# **📌 Lua Image Embedding Solutions**
 
-These allow **seamless image rendering in Lua without requiring external files**.
+This repository provides two optimized methods for embedding images with transparency into Lua source files, designed for game engines or applications where file size is critical.
 
----
+Both solutions use PNG compression to dramatically reduce file size compared to raw RGBA data.
 
-## **✨ Features**
-✅ **Clipboard-Based Encoding** – Copy an image, run the script, and paste the output into Lua!  
 ✅ **Supports Two Encoding Methods** – Choose between **Base64** (readable) or **Binary** (efficient).  
 ✅ **Automatic Power-of-2 Resizing** – Ensures maximum compatibility with rendering engines.  
 ✅ **No External Image Files Required** – The Lua script decodes & renders images dynamically.  

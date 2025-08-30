@@ -3,8 +3,8 @@ local binary_image = [[
 --image data here--
 ]]
 
--- Convert a binary string in \xXX format to raw byte data
-local function to_raw_bytes(data)
+-- Convert hex escape sequences back to raw bytes
+local function hex_to_raw_bytes(data)
     local raw = {}
     for byte in data:gmatch("\\x(%x%x)") do
         table.insert(raw, string.char(tonumber(byte, 16)))
@@ -12,19 +12,17 @@ local function to_raw_bytes(data)
     return table.concat(raw)
 end
 
--- Extract dimensions (first 8 bytes) as big-endian integers
+-- Extract dimensions (first 8 bytes) as big-endian integers using bitwise operations
 local function extract_dimensions(data)
-    local width = (data:byte(1) * 16777216) + (data:byte(2) * 65536) +
-                  (data:byte(3) * 256) + data:byte(4)
-    local height = (data:byte(5) * 16777216) + (data:byte(6) * 65536) +
-                   (data:byte(7) * 256) + data:byte(8)
+    local width = (data:byte(1) << 24) | (data:byte(2) << 16) | (data:byte(3) << 8) | data:byte(4)
+    local height = (data:byte(5) << 24) | (data:byte(6) << 16) | (data:byte(7) << 8) | data:byte(8)
     return width, height
 end
 
 -- Parse the binary image data and create a texture
 local function create_texture_from_binary(binary_data)
-    -- Convert binary string to raw bytes
-    local raw_binary = to_raw_bytes(binary_data)
+    -- Convert hex escape sequences to raw bytes
+    local raw_binary = hex_to_raw_bytes(binary_data)
     
     -- Extract dimensions from the first 8 bytes
     local width, height = extract_dimensions(raw_binary)

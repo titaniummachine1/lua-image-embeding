@@ -3,63 +3,87 @@ local base64_image = [[
 --image goes here--
 ]]
 
--- Base64 decoding function
-local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+-- Optimized Base64 decoder with lookup table
+local b64_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local b64_lookup = {}
+for i = 1, #b64_chars do
+    b64_lookup[b64_chars:sub(i, i)] = i - 1
+end
+
 local function base64_decode(data)
-    data = string.gsub(data, '[^' .. b .. '=]', '')
+    -- Remove whitespace and padding
+    data = data:gsub('%s+', ''):gsub('=+$', '')
+    
     local decoded = {}
-    local padding = 0
-
-    if string.sub(data, -2) == '==' then
-        padding = 2
-        data = string.sub(data, 1, -3)
-    elseif string.sub(data, -1) == '=' then
-        padding = 1
-        data = string.sub(data, 1, -2)
-    end
-
+    local padding = (4 - (#data % 4)) % 4
+    
+    -- Process 4 characters at a time
     for i = 1, #data, 4 do
-        local n = (string.find(b, string.sub(data, i, i)) - 1) * 262144 +
-                  (string.find(b, string.sub(data, i + 1, i + 1)) - 1) * 4096 +
-                  (string.find(b, string.sub(data, i + 2, i + 2)) - 1) * 64 +
-                  (string.find(b, string.sub(data, i + 3, i + 3)) - 1)
-        table.insert(decoded, string.char(math.floor(n / 65536) % 256))
-        table.insert(decoded, string.char(math.floor(n / 256) % 256))
-        table.insert(decoded, string.char(n % 256))
+        local chunk = data:sub(i, i + 3)
+        local n = 0
+        
+        -- Convert 4 base64 chars to 24-bit number
+        for j = 1, #chunk do
+            local char = chunk:sub(j, j)
+            local val = b64_lookup[char]
+            if val then
+                n = n * 64 + val
+            end
+        end
+        
+        -- Extract 3 bytes from 24-bit number
+        if #chunk >= 2 then
+            decoded[#decoded + 1] = string.char((n >> 16) & 0xFF)
+        end
+        if #chunk >= 3 then
+            decoded[#decoded + 1] = string.char((n >> 8) & 0xFF)
+        end
+        if #chunk >= 4 then
+            decoded[#decoded + 1] = string.char(n & 0xFF)
+        end
     end
-
-    if padding > 0 then
-        decoded = {table.unpack(decoded, 1, #decoded - padding)}
-    end
-
+    
     return table.concat(decoded)
 end
 
--- Decode dimensions from the first 12 characters of the Base64 string
-local dimension_encoded = string.sub(base64_image, 1, 12)
-local dimension_decoded = base64_decode(dimension_encoded)
-local width = tonumber(string.sub(dimension_decoded, 1, 4)) -- First 4 digits: width
-local height = tonumber(string.sub(dimension_decoded, 5, 8)) -- Next 4 digits: height
-
--- Decode the Base64 data (excluding the first 12 characters for dimensions)
-local image_data = string.sub(base64_image, 13)
-local decoded_data = base64_decode(image_data)
-
--- Validate data length
-local expected_length = width * height * 4
-if #decoded_data ~= expected_length then
-    print("Invalid data length. Expected " .. expected_length .. " bytes, got " .. #decoded_data .. " bytes.")
-    return
+-- Extract dimensions from first 8 bytes (big-endian uint32s)
+local function extract_dimensions(raw_data)
+    local width = (raw_data:byte(1) << 24) + (raw_data:byte(2) << 16) + 
+                  (raw_data:byte(3) << 8) + raw_data:byte(4)
+    local height = (raw_data:byte(5) << 24) + (raw_data:byte(6) << 16) + 
+                   (raw_data:byte(7) << 8) + raw_data:byte(8)
+    return width, height
 end
 
--- Create texture once
-local texture = draw.CreateTextureRGBA(decoded_data, width, height)
-
--- Validate texture creation
-if not texture then
-    print("Failed to create texture.")
-    return
+-- Main function to create texture from Base64 RGBA data
+local function create_texture_from_base64(base64_data)
+    -- Decode base64 to raw bytes
+    local raw_data = base64_decode(base64_data)
+    
+    -- Extract dimensions from header
+    local width, height = extract_dimensions(raw_data)
+    
+    -- Extract RGBA pixel data (skip 8-byte header)
+    local rgba_data = raw_data:sub(9)
+    
+    -- Validate data length
+    local expected_length = width * height * 4
+    if #rgba_data ~= expected_length then
+        error(string.format("Invalid RGBA data length. Expected %d bytes, got %d bytes.", 
+                          expected_length, #rgba_data))
+    end
+    
+    -- Create texture
+    local texture = draw.CreateTextureRGBA(rgba_data, width, height)
+    if not texture then
+        error("Failed to create texture from RGBA data.")
+    end
+    
+    return texture, width, height
 end
+
+-- Create texture once at load time
+local texture, width, height = create_texture_from_base64(base64_image)
 
 -- Named draw function
 local function draw_texture()

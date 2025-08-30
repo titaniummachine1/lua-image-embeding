@@ -24,7 +24,7 @@ def prepend_dimensions_to_binary_string(rgba_data, width, height):
     return dimensions + rgba_data
 
 def format_as_lua_string(binary_data):
-    """Format binary data as a Lua-compatible string."""
+    """Format binary data as a Lua-compatible binary string using hex escapes."""
     lua_compatible_string = ''.join(f'\\x{byte:02x}' for byte in binary_data)
     return lua_compatible_string
 

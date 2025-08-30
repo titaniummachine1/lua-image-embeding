@@ -19,6 +19,11 @@ Both solutions use PNG compression to dramatically reduce file size compared to 
    pip install pillow pyperclip
    ```
 
+### **Linux Clipboard Dependencies**
+For Linux users, install clipboard utilities based on your display server:
+- **Wayland**: `sudo apt install wl-clipboard` (or equivalent for your distro)
+- **X11/Xorg**: `sudo apt install xclip` (or equivalent for your distro)
+
 ### **Lua Requirements**
 - Your Lua environment must support **texture rendering** (`draw.CreateTextureRGBA`, `draw.TexturedRect`).
 
@@ -177,12 +182,18 @@ callbacks.Register("Draw", "RenderBinaryTexture", draw_texture)
 ---
 
 ## **📊 Base64 vs Binary Comparison**
+
+**⚠️ Important Size Note**: Due to Lua string literal limitations, binary encoding using hex escapes (`\xXX`) actually produces **larger files** than Base64 encoding.
+
 | Feature | **Base64** | **Binary (`\xXX`)** |
 |---------|----------------|----------------|
-| **Size Efficiency** | ❌ Larger (Base64 increases size by ~33%) | ✅ Smaller (Direct binary) |
-| **Decoding Speed** | ❌ Slower (Base64 decoding step) | ✅ Faster (No decoding needed) |
+| **File Size** | ✅ **Smaller** (~686KB for typical image) | ❌ **Larger** (~2MB for same image) |
+| **Encoding Efficiency** | ✅ 75% efficient (4 chars = 3 bytes) | ❌ 25% efficient (4 chars = 1 byte) |
+| **Decoding Speed** | ❌ Slower (Base64 decoding step) | ✅ Faster (Direct hex parsing) |
 | **Readability** | ✅ More readable (text-based) | ❌ Harder to read manually |
-| **Compatibility** | ✅ Works well in APIs & networking | ✅ Works well in compact scripts |
+| **Recommended Use** | ✅ **Recommended** for file size | ❌ Only if decoding speed is critical |
+
+**Recommendation**: Use **Base64 encoding** for most use cases as it produces significantly smaller embedded files.
 
 ---
 

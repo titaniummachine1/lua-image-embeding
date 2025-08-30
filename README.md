@@ -2,7 +2,7 @@
 
 This repository provides two methods for embedding images with transparency into Lua source files, designed for game engines or applications where file size is critical.
 
-Both solutions use PNG compression to dramatically reduce file size compared to raw RGBA data.
+Both solutions convert images to raw RGBA data with automatic power-of-2 resizing for optimal compatibility.
 
 ✅ **Supports Two Encoding Methods** – Choose between **Base64** (smaller files) or **Binary** (faster decoding).  
 ✅ **Automatic Power-of-2 Resizing** – Ensures maximum compatibility with rendering engines.  
@@ -36,15 +36,12 @@ For Linux users, install clipboard utilities based on your display server:
 - Right-click an image and select **"Copy"**, or press **Ctrl+C**.
 
 ### **Step 2: Run the Python Script**
-- **Option 1: Double-click the script** (`clipboard_to_lua.py`).  
-- **Option 2: Run from the terminal**:
-  ```bash
-  python clipboard_to_lua.py
-  ```
+- **Base64 Method**: Run `imagetorgba64.py` from the `Base64 Image Embeding/` folder
+- **Binary Method**: Run `imagetobinary.py` from the `Binary Image Embeding/` folder
 - The script will:
   ✅ Grab the image from the clipboard.  
   ✅ Resize it to **nearest power-of-2 dimensions**.  
-  ✅ Convert it into a **Lua-compatible Base64 or Binary string**.  
+  ✅ Convert it into a **Lua-compatible RGBA string**.  
   ✅ **Automatically copy** the result to the clipboard.  
 
 ### **Step 3: Paste into Your Lua Script**
